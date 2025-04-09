@@ -1,21 +1,74 @@
 # 项目安全检查清单
 
 ## 检查计划
-1. 检查所有配置文件(.env, .env.example等)
-2. 检查数据库相关文件(db目录下)
-3. 检查API接口文件(backend目录下)
-4. 检查前端文件(frontend目录下)
-5. 检查其他项目配置文件
+1. 根目录配置文件
+   - .env.example
+   - .gitattributes
+   - .gitignore
+   - docker-compose.yml
+   - generate_requirements.sh
+   - requirements.txt
+2. backend目录
+   - api_ollama_by_local.py
+   - api_ollama_by_OpenAI.py
+   - api_ollama_by_remoto.py
+   - api_openai.py
+   - api.py
+   - app.py
+   - game.py
+   - get_remoto_api_url.py
+   - login_or_register.py
+   - login.py
+   - save_images.py
+   - server.py
+   - static.py
+3. db目录
+   - hbm_db_init.sql
+   - hbm_db.py
+   - hbm-mysql.session.sql
+   - SQLite.sql
+4. frontend目录
+   - game.html
+   - index.html
+   - login.html
+   - navbar.html
+   - user.html
+   - static/index.css
+   - static/index.js
+   - static/login.js
+   - static/images/background.png
+   - static/images/hbm.png
 
 ## 文件检查记录
-# 格式: 文件名 | 检查状态 | 发现的问题 | 优化建议 
-
-.env.example | 已检查 | 使用占位符(YOUR_XXX)无实际敏感信息 | 1. 确认.gitignore包含.env 2. 在README中添加安全说明
-db/hbm_db_init.sql | 已检查 | 表结构设计规范，无硬编码凭证 | 1. 确保生产环境使用强密码哈希 2. 考虑敏感字段加密
-.gitignore | 已检查 | 忽略规则完整，包含.env和开发环境文件 | 1. 确认无敏感文件被错误包含 2. 考虑添加更多构建产物忽略规则
-docker-compose.yml | 已检查 | 使用环境变量，无硬编码凭证 | 1. 生产环境限制外部访问端口 2. 使用更安全的密码策略
-backend/app.py | 已检查 | 基础路由安全，静态文件访问有检查 | 1. 生产环境禁用debug模式 2. 添加CSRF保护 3. 实现认证机制
-backend/api.py | 已检查 | API路由分发功能，无直接敏感信息处理 | 1. 添加输入验证 2. 实现API调用频率限制 3. 统一错误处理
-frontend/index.html | 已检查 | 基础前端框架，无敏感信息 | 1. 添加CSRF token 2. 考虑实现CSP 3. 将内联JS移到外部文件
-frontend/login.html | 已检查 | 登录/注册功能基础实现 | 1. 添加CSRF保护 2. 考虑密码加密传输 3. 添加表单验证
-
+# 格式: 文件名 | 检查状态 | 修改记录(如有)
+.env.example | 通过 | 无敏感信息暴露，所有配置使用占位符
+.gitignore | 通过 | 基本规则完整，建议补充操作系统临时文件和测试报告忽略规则
+docker-compose.yml | 通过 | 无硬编码敏感信息，建议启用env_file配置并添加注释说明
+requirements.txt | 需优化 | 包含开发专用依赖，建议拆分到dev-requirements.txt并精简依赖
+backend/api_ollama_by_local.py | 通过 | 无敏感信息暴露，建议添加对话历史长度限制
+backend/api_ollama_by_OpenAI.py | 需优化 | 存在硬编码配置(base_url,模型名称)，建议使用环境变量并添加错误处理
+backend/api_ollama_by_remoto.py | 需优化 | 存在硬编码API URL和模型名称，建议使用环境变量并实现get_remoto_api_url调用
+backend/api_openai.py | 需优化 | 存在硬编码API密钥和URL，建议使用环境变量并添加错误处理
+backend/api.py | 通过 | 无敏感信息暴露，建议添加API文档和速率限制
+backend/app.py | 通过 | 无敏感信息暴露，建议添加CORS和安全头配置
+backend/game.py | 通过 | 无敏感信息暴露，建议清理调试代码并添加流程文档
+backend/get_remoto_api_url.py | 需优化 | 存在硬编码CSRF token，建议动态获取并加强错误处理
+backend/login_or_register.py | 通过 | 无敏感信息暴露，建议添加密码强度检查和账户锁定机制
+backend/login.py | 需优化 | 登录功能未完成实现，建议添加输入验证和账户安全机制
+backend/save_images.py | 需优化 | 文件名与功能不符，建议重命名并添加输入验证和事务处理
+backend/server.py | 需优化 | 存在硬编码端口，建议使用环境变量并添加安全配置
+backend/static.py | 通过 | 无敏感信息暴露，建议添加文件类型白名单和缓存控制
+db/hbm_db_init.sql | 通过 | 无敏感信息暴露，建议添加索引和表关系说明
+db/hbm_db.py | 通过 | 无敏感信息暴露，建议添加详细日志和连接超时机制
+db/hbm-mysql.session.sql | 通过 | 无敏感信息暴露
+db/SQLite.sql | 通过 | 无敏感信息暴露
+frontend/game.html | 通过 | 无敏感信息暴露，建议添加noscript标签和CSP
+frontend/index.html | 通过 | 无敏感信息暴露，建议添加noscript标签和CSP
+frontend/login.html | 通过 | 无敏感信息暴露，建议添加密码强度检查和表单验证
+frontend/navbar.html | 通过 | 无敏感信息暴露，建议添加aria属性和当前页面高亮
+frontend/user.html | 空文件 | 建议确认用途或删除
+frontend/static/index.css | 通过 | 无敏感信息暴露，建议添加浏览器前缀和CSS变量
+frontend/static/index.js | 通过 | 无敏感信息暴露，建议添加输入验证和请求限流
+frontend/static/login.js | 需优化 | 存在硬编码CSRF token，建议动态获取并添加密码加密
+frontend/static/images/background.png | 通过 | 无敏感信息暴露，建议压缩图片优化加载速度
+frontend/static/images/hbm.png | 通过 | 无敏感信息暴露，建议考虑使用WebP格式

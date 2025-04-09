@@ -4,33 +4,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>半数黑金 (half-black-money)</title>
-    <link rel="icon" href="{{ url_for('static', filename='images/hbm.png') }}" type="image/x-icon">
-    <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <title>半数黑金(half-black-money)</title>
+    <link rel="icon" href="/static/images/hbm.png" type="image/x-icon">
+    <link href="/static/index.css" rel="stylesheet" onerror="console.error('样式表加载失败。');">
+    <script src="/static/index.js"></script>
+    <style type="text/css">
+    </style>
+    <script>
+    </script>
 </head>
 
 <body>
-    <sidebar class="sidebar" id="sidebar">
-        <!-- 侧边导航内容 -->
-    </sidebar>
+    <!-- 动态加载导航栏 -->
+    <div id="navbar-container"></div>
+    <script>
+        fetch('/static/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('加载导航栏失败:', error));
+    </script>
 
     <main class="main" id="main">
         <!-- 注册/登录 标题 -->
         <header class="header" id="header">
             <h1>
-                欢迎来到 <img class="header-logo" src="{{ url_for('static', filename='images/hbm.png') }}" alt="Logo">
+                欢迎来到 <img class="header-logo" src="/static/images/hbm.png" alt="Logo">
                 <span class="gradient-text">半数黑金 (half-black-money)</span>
             </h1>
             <div class="header-buttons">
-                <button class="button header-button" onclick="toggleModal('login')">登录</button>
-                <button class="button header-button" onclick="toggleModal('register')">注册</button>
+                <button class="button header-button" onclick="window.location.href='index.html'">首页/游戏</button>
             </div>
         </header>
     </main>
 
     <!-- 登录模态框 -->
-    <div class="modal" id="login-modal">
+    <div class="modal" id="login-modal" style="display: flex;">
         <div class="modal-content">
             <span class="close" onclick="closeModal('login')">&times;</span>
             <h2>用户登录</h2>
@@ -45,6 +55,10 @@
                 </div>
                 <button type="submit" class="button">登录</button>
             </form>
+            <div class="login-options">
+                <a href="#" onclick="toggleModal('register'); closeModal('login');">立即注册</a>
+                <a href="#" onclick="alert('忘记密码功能尚未实现');">忘记密码</a>
+            </div>
             <div id="result"></div>
         </div>
     </div>
@@ -69,7 +83,26 @@
                 </div>
                 <button type="submit" class="button">注册</button>
             </form>
+            <div class="register-options">
+                <a href="#" onclick="toggleModal('login'); closeModal('register');">返回登录</a>
+            </div>
             <div id="register-result"></div>
+        </div>
+    </div>
+
+    <!-- 忘记密码模态框 -->
+    <div class="modal" id="forgot-password-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('forgot-password')">&times;</span>
+            <h2>忘记密码</h2>
+            <form id="forgot-password-form" onsubmit="event.preventDefault(); handleForgotPassword();">
+                <div>
+                    <label for="forgot-password-email">电子邮件:</label>
+                    <input type="email" id="forgot-password-email" required placeholder="请输入您的注册邮箱">
+                </div>
+                <button type="submit" class="button">提交</button>
+            </form>
+            <div id="forgot-password-result"></div>
         </div>
     </div>
 </body>
@@ -106,11 +139,27 @@
         document.getElementById('register-result').textContent = result.message || result.error;
     }
 
+    // 忘记密码函数
+    async function handleForgotPassword() {
+        const email = document.getElementById('forgot-password-email').value;
+
+        const response = await fetch('/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+
+        const result = await response.json();
+        document.getElementById('forgot-password-result').textContent = result.message || result.error;
+    }
+
     function closeModal(type) {
         if (type === 'login') {
             document.getElementById('login-modal').style.display = 'none';
         } else if (type === 'register') {
             document.getElementById('register-modal').style.display = 'none';
+        } else if (type === 'forgot-password') {
+            document.getElementById('forgot-password-modal').style.display = 'none';
         }
     }
 
@@ -119,6 +168,8 @@
             document.getElementById('login-modal').style.display = 'flex';
         } else if (type === 'register') {
             document.getElementById('register-modal').style.display = 'flex';
+        } else if (type === 'forgot-password') {
+            document.getElementById('forgot-password-modal').style.display = 'flex';
         }
     }
 </script>

@@ -141,10 +141,14 @@ function displayMessage(message, sender) {
     messageArea.scrollTop = messageArea.scrollHeight; // 确保显示最新消息
 }
 
+const IMAGE_BACKGROUND = '/static/images/background.png';
+const IMAGE_HBM = '/static/images/hbm.png';
+const IMAGE_BACKGROUND3 = '/static/images/background3.png';
+
 const images = [
-    'images/background.png',
-    'images/hbm.png',
-    'images/background3.png',
+  IMAGE_BACKGROUND,
+  IMAGE_HBM,
+  IMAGE_BACKGROUND3,
 ];
 
 let currentIndex = 0;

@@ -1,34 +1,24 @@
-import mysql.connector
-import sys
 import os
-import logging
-
-# sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-# from backend import get_remoto_api_url
+import mysql.connector.pooling
 
 def get_db_pool():
     """
     创建并返回数据库连接池
     """
-    # url = get_remoto_api_url.get_url_from_env_file('mysql').replace('tcp://', '')
-    # host, port = url.split(':', 1)
-    host='localhost'
-    port='3306'
-    try:
-        config = {
-            'host': os.getenv(host, 'localhost'),
-            'port': os.getenv(port, '3306'),
-            'user': os.getenv('MYSQL_USER'),
-            'password': os.getenv('MYSQL_PASSWORD'),
-            'database': os.getenv('MYSQL_DATABASE'),
-            'pool_name': 'hbm_mysql_pool',
-            'pool_size': 20
-        }
-        pool = mysql.connector.pooling.MySQLConnectionPool(**config)
-        return pool
-    except mysql.connector.Error as err:
-        print(f"Error creating database pool: {err}")
-        raise
+    # 从环境变量中获取 MySQL 连接信息
+    local_mysql_url = os.getenv('LOCAL_MYSQL_URL', 'localhost:3306')
+    host, port = local_mysql_url.split(':') if ':' in local_mysql_url else (local_mysql_url, '3306')
+    
+    config = {
+        'host': host,
+        'port': port,
+        'user': os.getenv('MYSQL_USER'),
+        'password': os.getenv('MYSQL_PASSWORD'),
+        'database': os.getenv('MYSQL_DATABASE'),
+        'pool_name': 'hbm_mysql_pool',
+        'pool_size': 20
+    }
+    return mysql.connector.pooling.MySQLConnectionPool(**config)
 
 def get_db_connection():
     """

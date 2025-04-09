@@ -1,61 +1,73 @@
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import RedirectResponse, FileResponse
 import os
-import flask 
-import server
+import sys
 
-app = flask.Flask(
-    __name__, 
-    template_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend/'))
+# 添加项目根目录到 sys.path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+project_root = os.path.abspath(os.path.join(current_dir, '..'))
+sys.path.append(project_root)
+
+import backend.api as api
+import backend.static as static
+
+app = FastAPI(
+    title="Half Black Money App",
+    version="1.0",
+    description="The main application for Half Black Money game",
 )
-app.jinja_env.auto_reload = True
-app.config['TEMPLATES_AUTO_RELOAD'] = True
 
-def handle_error(e, msg, status=500):
-    print(f"Error occurred: {e} - {type(e).__name__}")  # 输出错误的类型和信息
-    return flask.Response(msg, status=status)
+# 挂载api路由
+app.include_router(api.router)
 
-@app.route('/index')
-def index():
-    try:
-        return flask.render_template('index.html')  # 
-    except Exception as e:
-        return handle_error(e, "出现错误，请稍后再试。")
-@app.route('/login')
-def login():
-    try:
-        return flask.render_template('login.html')  # 
-    except Exception as e:
-        return handle_error(e, "出现错误，请稍后再试。")
+# 挂载静态文件路由
+app.include_router(static.router)
 
-@app.route('/')
-def root():
-    return flask.redirect(flask.url_for('index'))
+@app.get("/")
+async def root():
+    """
+    根路由，重定向到首页。
 
-@app.route('/static/<path:filename>')
-def static_file(filename):
-    static_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend/static/'))
-    file_path = os.path.join(static_folder, filename)
+    返回:
+    - RedirectResponse: 重定向到/index路由。
+    """
+    return RedirectResponse(url="/index")
 
-    if not os.path.exists(file_path):
-        return flask.Response("文件未找到", status=404)
+@app.get("/get_character_templates")
+async def get_character_templates():
+    """
+    获取角色模板（待实现）。
 
-    try:
-        return flask.send_file(file_path)
-    except Exception as e:
-        return handle_error(e, "出现错误，请稍后再试。")
-
-
-
-@app.route('/get_character_templates', methods=['GET'])
-def get_character_templates():
+    返回:
+    - dict: 角色模板数据（待实现）。
+    """
     # 准备实现的逻辑
     pass
 
-@app.route('/get_story_templates', methods=['GET'])
-def get_story_templates():
+@app.get("/game")
+async def game():
+    """
+    渲染游戏页面。
+
+    返回:
+    - FileResponse: 返回game.html文件。
+    """
+    try:
+        return FileResponse(os.path.join(project_root, "frontend/game.html"))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="无法加载游戏页面，请稍后再试。")
+
+@app.get("/get_story_templates")
+async def get_story_templates():
+    """
+    获取故事模板（待实现）。
+
+    返回:
+    - dict: 故事模板数据（待实现）。
+    """
     # 准备实现的逻辑
     pass
 
-if __name__ == '__main__':
-    app.run(debug=True)
-
-server.main()
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="localhost", port=8000)

@@ -19,6 +19,14 @@ model_name = 'llama3.2:3b'
 
 
 def client(content_text):    
+    """
+    通过OpenAI API与Ollama服务进行交互的客户端函数。
+
+    参数：
+        content_text: 用户输入的文本内容。
+    返回：
+        dict: 模型响应内容，如果成功则返回生成的JSON数据。
+    """
     # 要发送的数据
     data = {
         "model": model_name,

@@ -1,0 +1,16 @@
+<!-- 侧边导航栏 -->
+<sidebar class="sidebar" id="sidebar">
+    <button id="hamburger-button" class="hamburger-button" onclick="toggleSidebar()" title="切换侧边栏">
+        <span class="bar"></span>
+        <span class="bar"></span>
+        <span class="bar"></span>
+    </button>
+    <nav>
+        <ul>
+            <li><a href="#" id="start-game" onclick="window.location.href='/game'">开始游戏</a></li>
+            <li><a href="#" id="player-info" onclick="handleNavigation('player-info')">个人信息</a></li>
+            <li><a href="#" id="card-management" onclick="handleNavigation('card-management')">卡牌管理</a></li>
+            <li><a href="#" id="match-stats" onclick="handleNavigation('match-stats')">对局统计</a></li>
+        </ul>
+    </nav>
+</sidebar>

@@ -14,6 +14,14 @@ ollama_api_url = "https://501c3722.r12.vip.cpolar.cn"
 # content_text = "this is a test"
 
 def client(content_text):
+    """
+    通过远程Ollama服务进行交互的客户端函数。
+
+    参数：
+        content_text: 用户输入的文本内容。
+    返回：
+        str: 模型响应内容，如果成功则返回生成的文本。
+    """
     ollama.embed(model=model_name, input='The sky is blue because of rayleigh scattering')
     client = Client(host=ollama_api_url)
     response = client.chat(model=model_name, messages=[{'role': 'user', 'content': content_text}])

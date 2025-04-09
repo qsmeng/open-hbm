@@ -20,7 +20,15 @@ headers = {
 types = ["dify", "cpolar", "ComfyUI", "open_web_ui","ollama"]# mysql 单独处理
 
 def check_type(type:str):
-    """检查传入的类型是否在允许的枚举值中"""
+    """
+    检查传入的类型是否在允许的枚举值中。
+
+    参数:
+    - type: 要检查的类型。
+
+    抛出:
+    - ValueError: 如果类型不在允许的枚举值中。
+    """
     if type not in types:
         raise ValueError(f"无效的类型参数: {type}. 允许的值是: {types}")
 
@@ -38,7 +46,15 @@ def check_type(type:str):
 
 
 def update_remoto_api_url(type:str):
-    """更新保存的url"""
+    """
+    更新并保存远程API的URL。
+
+    参数:
+    - type: 要更新的API类型。
+
+    返回:
+    - str: 更新后的API URL，如果失败则返回错误信息。
+    """
     try:
         session = requests.Session()
         # csrf_token = get_csrf_token(session)
@@ -84,7 +100,15 @@ def update_remoto_api_url(type:str):
     except Exception as e:
         print(f"发生错误: {e}")
 def get_url_from_env_file(type: str):
-    """从.env文件中获取对应type的URL"""
+    """
+    从.env文件中获取对应类型的URL。
+
+    参数:
+    - type: 要获取的API类型。
+
+    返回:
+    - str: 从.env文件中读取的URL，如果未找到则返回None。
+    """
     check_type(type)
     key = f'cpolar_{type}_url'
     with open('.env', 'r', encoding='utf-8') as file:
@@ -95,7 +119,12 @@ def get_url_from_env_file(type: str):
                 return url  # 分割并返回URL部分
     return None  # 未找到或发生错误时返回None
 def check_url(type: str):
-    """检查当前保存的url可用性"""  
+    """
+    检查当前保存的URL是否可用。
+
+    参数:
+    - type: 要检查的API类型。
+    """
     check_type(type)
     url = get_url_from_env_file(type)  # 从文件读取API URL
     response = None
@@ -108,7 +137,15 @@ def check_url(type: str):
         update_remoto_api_url(type) # 更新API URL
 
 def get_remoto_api_url(type: str = None):
-    """获取远程API的URL或更新所有类型的URL""" 
+    """
+    获取远程API的URL或更新所有类型的URL。
+
+    参数:
+    - type: 要获取的API类型，如果为None则更新所有类型。
+
+    返回:
+    - str: 获取或更新后的API URL。
+    """
     if type is not None:
         check_type(type)
         try:

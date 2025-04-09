@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>半数黑金(half-black-money)</title>
-    <link rel="icon" href="{{ url_for('static', filename='images/hbm.png') }}" type="image/x-icon">
-    <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet" onerror="console.error('样式表加载失败。');">
-    <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <link rel="icon" href="/static/images/hbm.png" type="image/x-icon">
+    <link href="/static/index.css" rel="stylesheet" onerror="console.error('样式表加载失败。');">
+    <script src="/static/index.js"></script>
     <style type="text/css">        
     </style>
     <script>
@@ -15,28 +15,22 @@
 </head>
 
 <body>
-    <!-- 侧边导航栏 -->
-    <sidebar class="sidebar" id="sidebar">
-        <button id="hamburger-button" class="hamburger-button" onclick="toggleSidebar()" title="切换侧边栏">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-        <nav>
-            <ul>
-                <li><a href="#" id="start-game" onclick="handleNavigation('start-game')">开始游戏</a></li>
-                <li><a href="#" id="player-info" onclick="handleNavigation('player-info')">个人信息</a></li>
-                <li><a href="#" id="card-management" onclick="handleNavigation('card-management')">卡牌管理</a></li>
-                <li><a href="#" id="match-stats" onclick="handleNavigation('match-stats')">对局统计</a></li>
-            </ul>
-        </nav>
-    </sidebar>
+    <!-- 动态加载导航栏 -->
+    <div id="navbar-container"></div>
+    <script>
+        fetch('/static/navbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('navbar-container').innerHTML = data;
+            })
+            .catch(error => console.error('加载导航栏失败:', error));
+    </script>
 
     <main class="main" id="main">
         <!-- 注册/登录 标题 -->
         <header class="header" id="header">
             <h1>
-                欢迎来到 <img class="header-logo" src="{{ url_for('static', filename='images/hbm.png') }}" alt="Logo">
+                欢迎来到 <img class="header-logo" src="/static/images/hbm.png" alt="Logo">
                 <span class="gradient-text">半数黑金 (half-black-money)</span>
             </h1>
             <div class="header-buttons">
@@ -86,7 +80,7 @@
 
             <!-- 右侧 图片区域 -->
             <div class="image-area">
-                <img id="action-image" src="{{ url_for('static', filename='images/background.png') }}" alt="抽卡图案">  
+                <img id="action-image" src="/static/images/background.png" alt="抽卡图案">  
                 <button id="prevImage" onclick="prevImage()">◀</button>
                 <button id="nextImage" onclick="nextImage()">▶</button>
             </div>
