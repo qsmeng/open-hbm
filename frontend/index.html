@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>半数黑金(half-black-money)</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/hbm.png') }}" type="image/x-icon">
+    <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet" onerror="console.error('样式表加载失败。');">
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+    <style type="text/css">        
+    </style>
+    <script>
+    </script>
+</head>
+
+<body>
+    <!-- 侧边导航栏 -->
+    <sidebar class="sidebar" id="sidebar">
+        <button id="hamburger-button" class="hamburger-button" onclick="toggleSidebar()" title="切换侧边栏">
+            <span class="bar"></span>
+            <span class="bar"></span>
+            <span class="bar"></span>
+        </button>
+        <nav>
+            <ul>
+                <li><a href="#" id="start-game" onclick="handleNavigation('start-game')">开始游戏</a></li>
+                <li><a href="#" id="player-info" onclick="handleNavigation('player-info')">个人信息</a></li>
+                <li><a href="#" id="card-management" onclick="handleNavigation('card-management')">卡牌管理</a></li>
+                <li><a href="#" id="match-stats" onclick="handleNavigation('match-stats')">对局统计</a></li>
+            </ul>
+        </nav>
+    </sidebar>
+
+    <main class="main" id="main">
+        <!-- 注册/登录 标题 -->
+        <header class="header" id="header">
+            <h1>
+                欢迎来到 <img class="header-logo" src="{{ url_for('static', filename='images/hbm.png') }}" alt="Logo">
+                <span class="gradient-text">半数黑金 (half-black-money)</span>
+            </h1>
+            <div class="header-buttons">
+                <button class="button header-button" onclick="window.location.href='login.html'">登录/注册</button>
+            </div>
+        </header>
+
+
+        <div class="game-area">
+            <div class="buttons-area">
+                <!-- 左侧 按钮区域 -->
+                <h2>生成背景故事</h2>
+                <button class="button" onclick="handleAction(generateStory, '生成背景故事')">生成背景故事</button>
+
+                <h2>选择角色</h2>
+                <button class="button" onclick="handleAction(generateCharacter, '生成角色')">生成角色</button>
+
+                <h2>选择初始卡片 (最多 3 张)</h2>
+                <div class="card-options">
+                    <button class="button card-button" id="card-button1" onclick="selectCard('卡片1')">卡片1
+                        <div class="card-div" id="card-div1"></div>
+                    </button>
+                    <button class="button card-button" id="card-button2" onclick="selectCard('卡片2')">卡片2
+                        <div class="card-div" id="card-div2"></div>
+                    </button>
+                    <button class="button card-button" id="card-button3" onclick="selectCard('卡片3')">卡片3
+                        <div class="card-div" id="card-div3"></div>
+                    </button>
+                </div>
+
+                <h2>选择行动</h2>
+                <div class="action-options">
+                    <button class="button action-button" id="action-button1" onclick="performAction('行动1')">行动1
+                        <div class="action-div" id="action-div1"></div>
+                    </button>
+                    <button class="button action-button" id="action-button2" onclick="performAction('行动2')">行动2
+                        <div class="action-div" id="action-div2"></div>
+                    </button>
+                    <button class="button action-button" id="action-button3" onclick="performAction('行动3')">行动3
+                        <div class="action-div" id="action-div3"></div>
+                    </button>
+                    <button class="button action-button" id="action-button4" onclick="performAction('行动4')">行动4
+                        <div class="action-div" id="action-div4"></div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 右侧 图片区域 -->
+            <div class="image-area">
+                <img id="action-image" src="{{ url_for('static', filename='images/background.png') }}" alt="抽卡图案">  
+                <button id="prevImage" onclick="prevImage()">◀</button>
+                <button id="nextImage" onclick="nextImage()">▶</button>
+            </div>
+        </div>
+        <!-- 底部 -->
+        <div class="chat-area">
+            <div class="chat-messages" id="chat-messages">
+                1 <hr>
+                2 <hr>
+                3 <hr>
+                4 <hr>
+                5 <hr>
+            </div>
+            <div class="chatbox">
+                <input type="text" id="chat-input" class="chat-input" placeholder="输入消息..." />
+                <button class="button chatbox-button" onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+
+    </main>
+</body>
+
+</html>

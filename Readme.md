@@ -4,6 +4,22 @@
 
 半数黑金是一款集换式卡牌游戏，结合策略、推理与角色扮演，通过人工智能生成的角色元素，让玩家体验多样化的游戏乐趣。
 
+## 项目结构
+
+### 文件结构
+- [Readme.md](./Readme.md)：项目的整体简介和文件结构说明。
+- [.env](./.env)：项目的配置文件，包含数据库连接信息。
+- [create.sql](./db/create.sql)：创建数据库表的SQL脚本。
+- [generate_requirements.sh](./generate_requirements.sh)：生成项目依赖的脚本。
+- [requirements.txt](./requirements.txt)：项目依赖的Python库列表。
+- [LICENSE](./LICENSE)：项目的开源许可证。
+
+### [backend](./backend) 目录
+- [app.py](./backend/app.py)：后端主应用文件，包含Flask应用及路由配置，数据库连接和业务逻辑实现。
+
+### [frontend](./frontend) 目录
+- [index.html](./frontend/index.html)：游戏的HTML主页。
+
 ## 主要功能
 
 ### 1. 主机控制

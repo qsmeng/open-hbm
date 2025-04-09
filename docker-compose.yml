@@ -1,0 +1,42 @@
+services:
+  db:
+    image: mysql:8.0.31
+    container_name: hbm_mysql_container
+    restart: unless-stopped
+    # env_file:
+    #   - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: db  # 修改为主机名
+    ports:
+      - "3306:3306"
+    volumes:
+      - hbm_mysql_data_volume:/var/lib/mysql
+      - ./db/hbm_db_init.sql:/docker-entrypoint-initdb.d/init-db.sql # 将本地 db 目录挂载到容器的 /docker-entrypoint-initdb.d/ 目录
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  redis:
+    image: redis:7.0
+    container_name: redis_container
+    depends_on:
+      - db
+    ports:
+      - "6379:6379"
+    volumes:
+      - hbm_redis_data_volume:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+volumes:
+  hbm_mysql_data_volume:
+  hbm_redis_data_volume:

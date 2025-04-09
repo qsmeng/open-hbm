@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>半数黑金 (half-black-money)</title>
+    <link rel="icon" href="{{ url_for('static', filename='images/hbm.png') }}" type="image/x-icon">
+    <link href="{{ url_for('static', filename='index.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='index.js') }}"></script>
+</head>
+
+<body>
+    <sidebar class="sidebar" id="sidebar">
+        <!-- 侧边导航内容 -->
+    </sidebar>
+
+    <main class="main" id="main">
+        <!-- 注册/登录 标题 -->
+        <header class="header" id="header">
+            <h1>
+                欢迎来到 <img class="header-logo" src="{{ url_for('static', filename='images/hbm.png') }}" alt="Logo">
+                <span class="gradient-text">半数黑金 (half-black-money)</span>
+            </h1>
+            <div class="header-buttons">
+                <button class="button header-button" onclick="toggleModal('login')">登录</button>
+                <button class="button header-button" onclick="toggleModal('register')">注册</button>
+            </div>
+        </header>
+    </main>
+
+    <!-- 登录模态框 -->
+    <div class="modal" id="login-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('login')">&times;</span>
+            <h2>用户登录</h2>
+            <form id="login-form" onsubmit="event.preventDefault(); login();">
+                <div>
+                    <label for="login-username">用户名:</label>
+                    <input type="text" id="login-username" required placeholder="请输入用户名">
+                </div>
+                <div>
+                    <label for="login-password">密码:</label>
+                    <input type="password" id="login-password" required placeholder="请输入密码">
+                </div>
+                <button type="submit" class="button">登录</button>
+            </form>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <!-- 注册模态框 -->
+    <div class="modal" id="register-modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('register')">&times;</span>
+            <h2>用户注册</h2>
+            <form id="register-form" onsubmit="event.preventDefault(); register();">
+                <div>
+                    <label for="register-username">用户名:</label>
+                    <input type="text" id="register-username" required placeholder="请输入用户名">
+                </div>
+                <div>
+                    <label for="register-password">密码:</label>
+                    <input type="password" id="register-password" required placeholder="请输入密码">
+                </div>
+                <div>
+                    <label for="register-email">电子邮件:</label>
+                    <input type="email" id="register-email" required placeholder="请输入电子邮件">
+                </div>
+                <button type="submit" class="button">注册</button>
+            </form>
+            <div id="register-result"></div>
+        </div>
+    </div>
+</body>
+
+<script>
+    // 登录函数
+    async function login() {
+        const username = document.getElementById('login-username').value;
+        const password = document.getElementById('login-password').value;
+
+        const response = await fetch('/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const result = await response.json();
+        document.getElementById('result').textContent = result.message || result.error;
+    }
+
+    // 注册函数
+    async function register() {
+        const username = document.getElementById('register-username').value;
+        const password = document.getElementById('register-password').value;
+        const email = document.getElementById('register-email').value;
+
+        const response = await fetch('/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password, email })
+        });
+
+        const result = await response.json();
+        document.getElementById('register-result').textContent = result.message || result.error;
+    }
+
+    function closeModal(type) {
+        if (type === 'login') {
+            document.getElementById('login-modal').style.display = 'none';
+        } else if (type === 'register') {
+            document.getElementById('register-modal').style.display = 'none';
+        }
+    }
+
+    function toggleModal(type) {
+        if (type === 'login') {
+            document.getElementById('login-modal').style.display = 'flex';
+        } else if (type === 'register') {
+            document.getElementById('register-modal').style.display = 'flex';
+        }
+    }
+</script>
+
+</html>
