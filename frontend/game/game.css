@@ -1,0 +1,43 @@
+
+/* 游戏内容区域样式 */
+.game-area {
+    display: flex; /* 使用flex布局 */
+}
+
+/* 按钮区域样式 */
+.buttons-area {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+}
+
+/* 动作图片区域样式 */
+.image-area {
+    display: flex; /* 使用flex布局 */
+    align-items: center; /* 垂直居中内容 */
+    position: relative; /* 相对定位，以便定位图像导航箭头 */
+    width: 50%; /* 占父容器宽度的50% */
+    width: 300px;
+    height: 100%; /* 确保容器高度占满父容器 */
+    height: 300px;
+    overflow: hidden; /* 隐藏超出部分 */
+}
+
+.image-area img {
+    max-width: 100%; /* 限制图片宽度不超过容器宽度 */
+    max-height: 100%; /* 限制图片高度不超过容器高度 */
+    object-fit: cover; /* 图片保持比例缩放，覆盖整个容器 */
+}
+
+/* 上一张图片控制按钮样式 */
+#prevImage {
+    position: absolute; /* 绝对定位 */
+    left: 10px; /* 距离左边10px */
+}
+
+/* 下一张图片控制按钮样式 */
+#nextImage {
+    position: absolute; /* 绝对定位 */
+    right: 10px; /* 距离右边10px */
+}

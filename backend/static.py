@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import APIRouter, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 import os
@@ -9,10 +9,10 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 project_root = os.path.abspath(os.path.join(current_dir, '..'))
 sys.path.append(project_root)
 
-router = FastAPI()
+router = APIRouter()
 
 # 挂载静态文件
-router.mount("/static", StaticFiles(directory=os.path.join(project_root, "frontend/static")), name="static")
+router.mount("/static", StaticFiles(directory=os.path.join(project_root, "frontend")), name="static")
 
 @router.get("/static/{filename:path}")
 async def static_file(filename: str):
@@ -25,7 +25,14 @@ async def static_file(filename: str):
     返回:
     - FileResponse: 返回请求的静态文件。
     """
-    return FileResponse(os.path.join(project_root, "frontend/static", filename))
+    frontend_path = os.path.join(project_root, "frontend", filename)
+    if os.path.exists(frontend_path):
+        return FileResponse(frontend_path)
+    else:
+            raise HTTPException(status_code=404, detail="File not found")
+        
+
+
 
 @router.get("/favicon.ico")
 async def favicon():
@@ -35,7 +42,9 @@ async def favicon():
     返回:
     - FileResponse: 返回网站图标文件。
     """
-    try:
-        return FileResponse(os.path.join(project_root, "frontend/static/images/hbm.png"))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="无法加载图标，请稍后再试。")
+    favicon_path = os.path.join(project_root, "frontend/static/images/hbm.png")
+    if os.path.exists(favicon_path):
+        return FileResponse(favicon_path)
+    else:
+        raise HTTPException(status_code=404, detail="Favicon not found")
+

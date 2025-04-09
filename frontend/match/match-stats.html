@@ -1,0 +1,28 @@
+<main class="main" id="main">
+    <div class="main-content">
+        <h1>对局统计</h1>
+        <p>这里是对局统计页面，用于查看和分析您的对局数据。</p>
+        <div id="match-stats">
+            <!-- 对局统计数据将动态加载 -->
+        </div>
+    </div>
+</main>
+<script >// 获取对局统计数据
+    async function fetchMatchStats() {
+        try {
+            const data = await callAPI('/api/match/stats');
+            const matchStats = document.getElementById('match-stats');
+            matchStats.innerHTML = `
+                <div class="stat-item">
+                    <h3>总对局数: ${data.total_matches}</h3>
+                    <p>胜利: ${data.wins} | 失败: ${data.losses}</p>
+                </div>
+            `;
+        } catch (error) {
+            handleError(error, { useAlert: true, message: '无法加载对局统计数据，请稍后重试。' });
+        }
+    }
+    
+    // 页面加载时获取对局统计数据
+    fetchMatchStats();
+    </script>
