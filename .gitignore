@@ -1,0 +1,19 @@
+.参考
+# 忽略日志文件
+*.log*
+# 忽略venv目录
+venv
+.venv
+# 忽略缓存目录
+.pytest_cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# 忽略环境变量文件
+.env
+
+# 忽略IDE配置文件
+.idea/
+.vscode/
