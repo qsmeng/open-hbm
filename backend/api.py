@@ -1,136 +1,82 @@
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import RedirectResponse, FileResponse
+from ollama import Client
+from typing import Optional, List
+from dotenv import load_dotenv
 import os
-import sys
-import backend.login_or_register as login_or_register
 
-# 添加项目根目录到 sys.path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(current_dir, '..'))
-sys.path.append(project_root)
+"""docs ollama_by_local
+https://github.com/ollama/ollama-python
+https://github.com/ollama/ollama/blob/main/docs/openai.md
+https://github.com/ollama/ollama/blob/main/docs/api.md
+"""
 
-router = APIRouter()
+# 加载环境变量
+load_dotenv()
 
-# ------------------------- 页面渲染相关路由 -------------------------
-@router.get("/index")
-async def index():
+# 从配置文件 .env 获取 MODEL_NAME 和 OLLAMA_URL
+OLLAMA_MODEL_NAME = os.getenv('OLLAMA_MODEL_NAME')
+if not OLLAMA_MODEL_NAME:
+    raise ValueError("环境变量 OLLAMA_MODEL_NAME 未设置")
+
+# OLLAMA_URL = api_url.get_remoto_api_url("ollama")
+# OLLAMA_URL = "https://501c3722.r12.vip.cpolar.cn"
+OLLAMA_URL = os.getenv('OLLAMA_URL')
+if not OLLAMA_URL:
+    raise ValueError("环境变量 OLLAMA_URL 未设置")
+
+# 对话历史记录
+conversation_history: List[dict] = []
+
+from openai import OpenAI  # 新增导入
+async def OpenAIAPI_Ollama_client(content_text: str) -> Optional[str]:
     """
-    渲染首页页面。
+    使用OpenAIAPI与Ollama服务交互以生成AI响应。
 
-    返回:
-    - FileResponse: 返回index.html文件。
+    描述：
+        此方法通过OpenAIAPI的接口与Ollama服务交互，发送用户的文本输入并获取生成的响应。
+
+    参数：
+        content_text (str): 待处理的用户输入文本，必须为非空字符串且长度不超过4096字符。
+
+    返回：
+        Optional[str]: 成功时返回响应文本内容，失败时返回None。
+
+    异常：
+        ValueError: 当输入文本无效（为空或超长度限制）时抛出。
+        Exception: 当服务调用失败或返回错误时抛出，并提供详细的错误日志。
     """
+    # 输入验证
+    if not isinstance(content_text, str) or not content_text.strip():
+        raise ValueError("content_text 必须是非空字符串")
+    
+    if len(content_text) > 4096:
+        raise ValueError("输入长度超过 4096 字符限制")
+
     try:
-        return FileResponse(os.path.join(project_root, "frontend/index.html"))
+        # 打印调试信息
+        print(f"尝试连接到Ollama服务，base_url: http://{OLLAMA_URL}/v1/")
+        client = OpenAI(
+            base_url=f'http://{OLLAMA_URL}/v1/',  # 确保使用完整的URL
+            api_key='ollama',
+        )
+        chat_completion = await client.chat.completions.create(
+            messages=[{'role': 'user', 'content': content_text}],
+            model=OLLAMA_MODEL_NAME  # 使用环境变量
+        )
+        # 清理模型响应内容，移除多余的空行和无关信息
+        response_content = chat_completion.choices[0].message.content
+        cleaned_response = "\n".join(line.strip() for line in response_content.splitlines() if line.strip())
+        print(f"成功获取模型响应: {cleaned_response}")
+        return cleaned_response
     except Exception as e:
-        raise HTTPException(status_code=500, detail="出现错误，请稍后再试。")
-
-@router.get("/index.html")
-async def index_html():
-    """
-    重定向到首页。
-
-    返回:
-    - RedirectResponse: 重定向到/index路由。
-    """
-    return RedirectResponse(url="/index")
-
-@router.get("/login")
-async def login():
-    """
-    渲染登录页面。
-
-    返回:
-    - FileResponse: 返回login.html文件。
-    """
-    try:
-        return FileResponse(os.path.join(project_root, "frontend/login.html"))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="无法加载登录页面，请稍后再试。")
-
-@router.get("/login.html")
-async def login_html():
-    """
-    重定向到登录页面。
-
-    返回:
-    - RedirectResponse: 重定向到/login路由。
-    """
-    return RedirectResponse(url="/login")
-
-# ------------------------- 用户认证相关路由 -------------------------
-@router.post("/login")
-async def handle_login(request: Request):
-    """
-    处理用户登录请求。
-
-    参数:
-    - request: 包含登录数据的请求对象。
-
-    返回:
-    - dict: 包含登录结果和重定向URL的字典。
-    """
-    data = await request.json()
-    response = await login_or_register.login(data)  # 确保传递 data 参数
-    if "redirect_url" in response:
-        return {"message": "登录成功", "redirect_url": response["redirect_url"]}
-    return response
-
-@router.post("/register")
-async def handle_register(request: Request):
-    """
-    处理用户注册请求。
-
-    参数:
-    - request: 包含注册数据的请求对象。
-
-    返回:
-    - dict: 包含注册结果的字典。
-    """
-    data = await request.json()
-    return await login_or_register.register(data)
-
-@router.post("/forgot-password")
-async def handle_forgot_password(request: Request):
-    """
-    处理忘记密码请求。
-
-    参数:
-    - request: 包含忘记密码数据的请求对象。
-
-    返回:
-    - dict: 包含忘记密码处理结果的字典。
-    """
-    data = await request.json()
-    email = data.get("email")
-    if not email:
-        raise HTTPException(status_code=400, detail="邮箱地址不能为空")
-    
-    # 调用忘记密码逻辑
-    result = await login_or_register.forgot_password(email)
-    return result
-
-# ------------------------- AI 服务相关逻辑 -------------------------
-import backend.api_openai as api_openai
-import backend.api_ollama_by_remoto as api_ollama_by_remoto
-import backend.api_ollama_by_local as api_ollama_by_local
-
-def client(api_type, content_text):
-    """
-    根据API类型调用相应的AI服务客户端。
-    
-    参数:
-    - api_type: AI服务类型，可选值为 'openai', 'ollama_by_remoto', 'ollama_by_local'
-    - content_text: 输入文本内容
-    
-    返回:
-    - AI服务的响应结果，如果API类型无效则返回None
-    """
-    if api_type == 'openai':
-        return api_openai.client(content_text)
-    elif api_type == 'ollama_by_remoto':
-        return api_ollama_by_remoto.client(content_text)
-    elif api_type == 'ollama_by_local':
-        return api_ollama_by_local.client(content_text)
-    else:
+        print(f"API 调用失败: {str(e)}")
+        # 添加详细错误日志
+        print(f"请检查本地Ollama服务是否已启动，并确认以下配置：")
+        print(f"base_url: http://{OLLAMA_URL}/v1/")
+        print(f"model: {OLLAMA_MODEL_NAME}")
+        print(f"确保服务正在运行并监听端口 {OLLAMA_URL.split(':')[-1]}")
         return None
+
+# 注释掉测试代码
+# content_text = "this is a test"
+# re=OpenAIAPI_Ollama_client(content_text)
+# print("OpenAIAPI_Ollama_client:"+re)

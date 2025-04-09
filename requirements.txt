@@ -12,4 +12,6 @@ asyncio>=3.4.3
 flask>=2.0.0
 python-jose>=3.3.0
 anyio>=4.0.0
-openai
+openai>=1.0.0
+langchain>=0.3.22
+langchain-ollama>=0.3.0

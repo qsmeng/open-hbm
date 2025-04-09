@@ -13,9 +13,6 @@ app = FastAPI(
 )
 
 def main():
-    uvicorn.run(app, host="localhost", port=8000)
-
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 if __name__ == '__main__':
-    uvicorn.run(app, host="localhost", port=8000)
-
-# TODO: 实现卡牌管理功能，允许玩家存储和管理卡牌信息
+    uvicorn.run(app, host="0.0.0.0", port=8000)
