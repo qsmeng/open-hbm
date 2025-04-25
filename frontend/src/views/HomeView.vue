@@ -31,7 +31,7 @@
 <script setup>
 import Header from '@/components/Header.vue'
 import { ref, onMounted } from 'vue'
-import { useAuth } from '@/components/useAuth'
+import { useAuth } from '@/composables/useAuth'
 
 const { isAuthenticated, username, userAvatar } = useAuth()
 </script>

@@ -14,13 +14,14 @@ const router = createRouter({
     },
     {
       path: '/auth',
-      name: 'login',
+      name: 'auth',
       component: AuthView
     },
     {
       path: '/game',
       name: 'game',
-      component: GameView
+      component: GameView,
+      meta: { requiresAuth: true }
     },
     {
       path: '/rule',

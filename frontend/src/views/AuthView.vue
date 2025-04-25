@@ -38,6 +38,7 @@
 
 <script setup>
 import Header from '@/components/Header.vue'
+import Footer from '@/components/Footer.vue'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -53,9 +54,7 @@ const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 
 const isLogin = computed(() => authMode.value === 'login')
 const isRegister = computed(() => authMode.value === 'register')
-const isForgot = computed(() => authMode.value === 'forgot')
 
-// 修复: toggleAuthMode 方法
 const toggleAuthMode = () => {
   authMode.value = isLogin.value ? 'register' : 'login'
 }
@@ -67,18 +66,6 @@ const handleForgotPassword = () => {
 
 // 新增: 定义 validateForm 函数
 const validateForm = () => {
-  if (!username.value.trim()) {
-    alert('用户名不能为空')
-    return false
-  }
-  if (!isLogin.value && !email.value.trim()) {
-    alert('邮箱不能为空')
-    return false
-  }
-  if (!password.value.trim()) {
-    alert('密码不能为空')
-    return false
-  }
   if (!isLogin.value && password.value !== confirmPassword.value) {
     alert('两次输入的密码不一致')
     return false
@@ -102,9 +89,6 @@ const handleAuth = async () => {
       }
 
     try {
-      console.log('正在发送请求到:', url)
-      console.log('请求体:', body)
-      
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -113,12 +97,9 @@ const handleAuth = async () => {
         body: JSON.stringify(body)
       })
 
-      console.log('收到响应:', response)
-      
       if (response.ok) {
         if (isLogin.value) {
           const data = await response.json()
-          console.log('登录成功响应数据:', data)
           if (data.access_token) {
             localStorage.setItem('auth_token', data.access_token)
             router.push('/')
@@ -227,18 +208,12 @@ const handleAuth = async () => {
 
 .back-button {
   display: inline-block;
-  margin-top: 20px;
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
+  margin-top: 1rem;
+  color: #6c757d;
   text-decoration: none;
-  border-radius: 5px;
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
 }
 
 .back-button:hover {
-  background-color: #0056b3;
+  color: #5a6268;
 }
 </style>

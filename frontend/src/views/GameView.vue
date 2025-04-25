@@ -1,29 +1,51 @@
 <template>
   <div class="game-view">
     <Header />
-    <div class="game-content">
-      <h1>游戏页面</h1>
-      <div class="chatbox">
-      <div class="messages">
-        <div v-for="(message, index) in messages" :key="index" :class="message.sender">
-          {{ message.text }}
+    <div class="game-container">
+      <!-- Main game area -->
+      <div class="game-main">
+        <h1>游戏页面</h1>
+        <div class="chatbox">
+          <div class="messages">
+            <div v-for="(message, index) in messages" :key="index" :class="message.sender">
+              {{ message.text }}
+            </div>
+          </div>
+          <input v-model="inputMessage" @keyup.enter="sendMessage" placeholder="输入消息..." />
         </div>
       </div>
-      <input v-model="inputMessage" @keyup.enter="sendMessage" placeholder="输入消息..." />
+      
+      <!-- AI responses section -->
+      <div class="ai-responses">
+        <h3>AI备选回复</h3>
+        <div class="response-options">
+          <!-- AI generated responses will appear here -->
+        </div>
+      </div>
+      
+      <!-- Treasure image section -->
+      <div class="treasure-area">
+        <img :src="treasureImage" alt="宝物" @error="setDefaultImage">
+      </div>
     </div>
-      <router-link to="/" class="back-button">返回首页</router-link>
-    </div>
+    <router-link to="/" class="back-button">返回首页</router-link>
+    <Footer />
   </div>
 </template>
 
 <script setup>
 import Header from '@/components/Header.vue'
-import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
-import axios from 'axios';
+import Footer from '@/components/Footer.vue'
+import { ref } from 'vue'
+import axios from 'axios'
 
-const messages = ref([]);
-const inputMessage = ref('');
+const messages = ref([])
+const inputMessage = ref('')
+const treasureImage = ref('background.png')
+
+const setDefaultImage = (e) => {
+  e.target.src = 'background.png'
+}
 
 const sendMessage = async () => {
   if (inputMessage.value.trim() === '') return;
@@ -47,14 +69,60 @@ const sendMessage = async () => {
 
 <style scoped>
 .game-view {
-  min-height: calc(100vh - 60px);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
 
-.game-content {
+.game-container {
+  display: flex;
+  flex: 1;
   padding: 20px;
-  max-width: 1200px;
-  margin: 0 auto;
-  text-align: center;
+  gap: 20px;
+}
+
+.game-main {
+  flex: 2;
+}
+
+.ai-responses {
+  flex: 1;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.treasure-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.treasure-area img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
+}
+
+.ai-options {
+  width: 30%;
+  padding: 1rem;
+  border-right: 1px solid #ccc;
+  overflow-y: auto;
+}
+
+.treasure-display {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.treasure-display img {
+  max-width: 100%;
+  max-height: 300px;
+  object-fit: contain;
 }
 
 .back-button {
@@ -77,9 +145,7 @@ const sendMessage = async () => {
 .chatbox {
   height: calc(100vh - 160px);
   margin-top: 20px;
-  width: 300px;
-  margin-left: auto;
-  margin-right: auto;
+  width: 100%;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;

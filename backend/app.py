@@ -20,7 +20,7 @@ app.add_middleware(
 )
 
 # 挂载API路由
-app.include_router(api_router)
+app.include_router(api_router, prefix="/api")
 
 # 中间件：输出全部拦截到请求的请求url
 @app.middleware("http")
