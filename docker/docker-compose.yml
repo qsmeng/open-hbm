@@ -1,0 +1,123 @@
+# docker目录下启动容器组
+# docker-compose -p half_black_money up -d --build 
+# 项目根目录下启动容器组
+# docker-compose -p half_black_money -f docker/docker-compose.yml up -d --build 
+# 手动拉取模型命令,
+# docker exec ollama ollama pull deepseek-r1:1.5b
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_model_data_volume:/root/.ollama/models
+    environment:
+      - OLLAMA_HOST=${OLLAMA_URL}
+      - OLLAMA_MODEL_NAME=${OLLAMA_MODEL_NAME}
+    entrypoint: ["/bin/sh", "-c", "ollama serve;ollama pull deepseek-r1:1.5b"]
+    networks:
+      - app-network
+
+  backend:
+    image: python:3.12.7-slim
+    container_name: backend
+    restart: no
+    ports:
+      - "8001:8000"
+    volumes:
+      - ../:/app
+    working_dir: /app
+    command: >
+      sh -c "
+      pip install --no-cache-dir -r requirements.txt; 
+      uvicorn backend.app:app --reload
+      "
+    networks:
+      - app-network
+
+  frontend:
+    image: node:22-alpine
+    container_name: frontend
+    restart: no
+    ports:
+      - "5173:5173"
+    volumes:
+      - ../:/app
+      - frontend_build_volume:/app/frontend/dist
+    working_dir: /app/frontend
+    environment:
+      - VITE_API_BASE_URL=http://backend:8000
+    command: >
+      sh -c "
+      npm install || { echo 'npm install failed'; exit 1; }; 
+      npm run build || { echo 'npm run build failed'; exit 1; };
+      if [ -z \"$(ls -A /app/frontend/dist)\" ]; then
+        cp -r dist/* /app/frontend/dist
+      fi;
+      touch /app/frontend/dist/build_complete || { echo 'Failed to create build_complete file'; exit 1; }
+      "
+    healthcheck:
+      test: ["CMD", "test", "-f", "/app/frontend/dist/build_complete"]
+      interval: 10s
+      timeout: 5s
+    # 重试60次 即5分钟 保障足够的编译时间
+      retries: 60
+
+  db:
+    image: mysql:8.0.31
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_HOST: db
+    ports:
+      - "3306:3306"
+    volumes:
+      - hbm_mysql_data_volume:/var/lib/mysql
+      - ../database/mysql/hbm_db_init.sql:/docker-entrypoint-initdb.d/init-db.sql
+      - ../database/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - app-network
+
+  redis:
+    image: redis:7.0
+    container_name: redis
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - ../conf/redis/redis.conf:/etc/redis/conf.d/default.conf
+    command: >
+      sh -c "redis-server /etc/redis/conf.d/default.conf"
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:1.25.3
+    container_name: nginx
+    restart: always    
+    ports:
+      - "8080:80"
+    volumes:
+      - ../conf/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    # 挂载共享卷，实现对编译结果的挂载
+      - frontend_build_volume:/app/frontend/dist
+    depends_on:
+      frontend:
+        condition: service_healthy
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  hbm_mysql_data_volume:
+  ollama_model_data_volume:
+  frontend_build_volume:    

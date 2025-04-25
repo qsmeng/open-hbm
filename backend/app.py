@@ -1,37 +1,34 @@
-from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
 import os
 import sys
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 
-# 添加项目根目录到 sys.path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-project_root = os.path.abspath(os.path.join(current_dir, '..'))
-sys.path.append(project_root)
+# 将项目根目录添加到 sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-import backend.static as static
+from backend.api import router as api_router
 
-app = FastAPI(
-    title="Half Black Money App",
-    version="1.0",
-    description="The main application for Half Black Money game",
+app = FastAPI()
+
+# 添加CORS中间件
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # 允许所有来源，生产环境应限制
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
-# 挂载静态文件路由
-app.include_router(static.router)
+# 挂载API路由
+app.include_router(api_router)
 
-@app.get("/")
-@app.get("/index")
-async def root():
-    """
-    处理首页请求。
+# 中间件：输出全部拦截到请求的请求url
+@app.middleware("http")
+async def log_request_url(request: Request, call_next):
+    print(f"Request URL: {request.url}")
+    response = await call_next(request)
+    return response
 
-    返回:
-    - FileResponse: 返回首页HTML文件。
-    """
-    try:
-        frontend_index_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "frontend", "index", "index.html"))
-        return FileResponse(frontend_index_path)
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="首页文件未找到")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
